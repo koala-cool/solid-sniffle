@@ -13,7 +13,7 @@ resource "google_compute_firewall" "allow_ssh" {
     ports    = ["22", "80", "443"]
   }
 
-  target_tags = ["fw-rule"]
+  target_tags = [local.base_fw_tag]
 }
 
 module "public_subnets" {
@@ -34,18 +34,18 @@ module "private_subnets" {
 
 module "dev_instance" {
   source = "./modules/instance"
-  subnet = module.public_subnets.sub_self_link_a
+  subnet = module.public_subnets.self_link_east1
   zone = "us-east1-d" # Todo: Tie region to subnet
   name = "dev"
-  tags = ["fw-rule"]
+  tags = [local.base_fw_tag]
 }
 
 module "apache_instance" {
   source = "./modules/instance"
-  subnet = module.private_subnets.sub_self_link_a
+  subnet = module.private_subnets.self_link_east1
   zone = "us-east1-d" # Todo: Tie region to subnet
   name = "apache"
-  script = file("scripts/startup-apache.sh") # Todo: Install apache
+  script = file("scripts/startup-apache.sh")
 }
 
 module "apache_lb" {

@@ -1,7 +1,7 @@
-output "sub_self_link_a" {
+output "self_link_east1" {
   value = google_compute_subnetwork.subnet-east1.self_link
 }
 
-output "sub_self_link_b" {
+output "self_link_east4" {
   value = google_compute_subnetwork.subnet-east4.self_link
 }
