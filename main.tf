@@ -1,19 +1,10 @@
-resource "google_compute_network" "vpc_network" {
-  name = "vpc-network"
-  auto_create_subnetworks = false
-  delete_default_routes_on_create = true
+module "vpc_network" {
+  source = "./modules/vpc"
 }
 
-resource "google_compute_firewall" "allow_ssh" {
-  name    = "allow-ssh"
-  network = google_compute_network.vpc_network.name
-
-  allow {
-    protocol = "tcp"
-    ports    = ["22", "80", "443"]
-  }
-
-  target_tags = [local.base_fw_tag]
+module "firewall_rules" {
+  source = "./modules/fw_rules"
+  vpc_network_name = module.vpc_network.name
 }
 
 module "public_subnets" {
@@ -21,7 +12,7 @@ module "public_subnets" {
   base_cidr = local.base_cidr
   index = 0
   public = true
-  vpc_network_id = google_compute_network.vpc_network.id
+  vpc_network_id = module.vpc_network.id
 }
 
 module "private_subnets" {
@@ -29,7 +20,7 @@ module "private_subnets" {
   base_cidr = local.base_cidr
   index = 2
   public = false
-  vpc_network_id = google_compute_network.vpc_network.id
+  vpc_network_id = module.vpc_network.id
 }
 
 module "dev_instance" {
@@ -37,7 +28,7 @@ module "dev_instance" {
   subnet = module.public_subnets.self_link_east1
   zone = "us-east1-d" # Todo: Tie region to subnet
   name = "dev"
-  tags = [local.base_fw_tag]
+  tags = module.firewall_rules.allow_ssh
 }
 
 module "apache_instance" {
