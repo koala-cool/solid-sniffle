@@ -18,3 +18,9 @@ variable "script" {
   type = string
   description = "Script to run on startup on created instance"
 }
+
+variable "tags" {
+  default = []
+  type = list
+  description = "A list of tags to give the instance"
+}

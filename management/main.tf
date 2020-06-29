@@ -4,6 +4,18 @@ resource "google_compute_network" "vpc_network" {
   delete_default_routes_on_create = true
 }
 
+resource "google_compute_firewall" "allow_ssh" {
+  name    = "allow-ssh"
+  network = google_compute_network.vpc_network.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22", "80", "443"]
+  }
+
+  target_tags = ["fw-rule"]
+}
+
 module "public_subnets" {
   source = "./modules/ha_subnets"
   base_cidr = local.base_cidr
@@ -25,6 +37,7 @@ module "dev_instance" {
   subnet = module.public_subnets.sub_self_link_a
   zone = "us-east1-d" # Todo: Tie region to subnet
   name = "dev"
+  tags = ["fw-rule"]
 }
 
 module "apache_instance" {

@@ -26,4 +26,6 @@ resource "google_compute_instance" "instance" {
   }
 
   metadata_startup_script = var.script
+
+  tags = var.tags
 }
